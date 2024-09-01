@@ -1,10 +1,10 @@
 {
   "name": "e-commerce",
   "version": "1.0.0",
-  "description": "",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "start": "node server.js"
   },
   "author": "Abdulhamid",
   "license": "ISC",
@@ -13,5 +13,6 @@
     "express": "^4.19.2",
     "mongoose": "^8.6.0",
     "morgan": "^1.10.0"
-  }
+  },
+  "description": ""
 }
