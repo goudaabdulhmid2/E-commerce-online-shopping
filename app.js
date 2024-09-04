@@ -2,7 +2,10 @@ const express = require('express');
 const morgen = require('morgan');
 const AppError = require('./utils/AppError');
 const categoryRouter = require('./routes/categoryRouter');
+const subCategoryRouter = require('./routes/subCategoryRouter');
+const brandRouter = require('./routes/brandRouter');
 const globalErrorHandler = require('./controllers/errorController');
+
 const app = express();
 
 if (process.env.NODE_ENV === 'development') {
@@ -14,6 +17,8 @@ app.use(express.json({ limit: '10kb' }));
 
 // Mount Routes
 app.use('/api/v1/categories', categoryRouter);
+app.use('/api/v1/subcategories', subCategoryRouter);
+app.use('/api/v1/brands', brandRouter);
 
 // Handle unhandlled routes
 app.all('*', (req, res, next) => {

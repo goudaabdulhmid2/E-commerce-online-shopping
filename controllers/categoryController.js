@@ -1,5 +1,5 @@
 const handlerFactory = require('./handlerFactory');
-const Category = require('./../models/categoryModel');
+const Category = require('../models/categoryModel');
 
 // @desc  Creat category
 // @route POST /api/v1/categories

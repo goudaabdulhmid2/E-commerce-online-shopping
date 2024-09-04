@@ -1,7 +1,8 @@
 const catchAsync = require('express-async-handler');
+const slugify = require('slugify');
 const AppFeatures = require('../utils/AppFeatures');
 const AppError = require('../utils/AppError');
-const slugify = require('slugify');
+
 exports.getOne = (Model) =>
   catchAsync(async (req, res, next) => {
     const doc = await Model.findById(req.params.id);
@@ -20,7 +21,7 @@ exports.getOne = (Model) =>
 
 exports.getAll = (Model) =>
   catchAsync(async (req, res, next) => {
-    const features = new AppFeatures(Model.find(), req.query)
+    const features = new AppFeatures(Model.find(req.filterObj), req.query)
       .filter()
       .sort()
       .limitFileds()
