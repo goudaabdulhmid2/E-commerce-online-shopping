@@ -43,6 +43,9 @@ exports.updateOne = (Model) =>
   catchAsync(async (req, res, next) => {
     if (req.body.name) req.body.slug = slugify(req.body.name, { lower: true });
 
+    if (req.body.title)
+      req.body.slug = slugify(req.body.title, { lower: true });
+
     const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
