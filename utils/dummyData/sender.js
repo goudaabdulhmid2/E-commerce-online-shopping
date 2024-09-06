@@ -1,5 +1,5 @@
 const fs = require('fs');
-// require('colors');
+require('colors');
 const dotenv = require('dotenv');
 
 dotenv.config({ path: '../../config.env' });

@@ -1,5 +1,9 @@
 const { check } = require('express-validator');
+const mongoose = require('mongoose');
 const validatorController = require('../../controllers/validatorController');
+const Category = require('../../models/categoryModel');
+const Subcategory = require('../../models/subCategoryModel');
+const Brand = require('../../models/brandModel');
 
 exports.getProductValidator = [
   check('id').isMongoId().withMessage('Invalid product ID'),
@@ -55,12 +59,68 @@ exports.createProductValidator = [
     .notEmpty()
     .withMessage('Category is required')
     .isMongoId()
-    .withMessage('Invalid category ID'),
-  check('subCategory')
+    .withMessage('Invalid category ID')
+    .custom(async (value) => {
+      const category = await Category.findById(value);
+      if (!category) throw new Error('No category with this ID found');
+      return true;
+    }),
+  check('subCategories')
+    .optional()
+    .isArray()
+    .withMessage('subCategories must be an array')
+    .custom(async (value, { req }) => {
+      // Check if there are duplicate subcategory IDs in the array
+      const dublicateIds = new Set(value);
+      if (dublicateIds.size !== value.length) {
+        throw new Error('there are duplicate subcategory IDs');
+      }
+
+      // Check if all provided subcategory IDs are valid
+      const invalidIds = value.filter(
+        (id) => !mongoose.Types.ObjectId.isValid(id),
+      );
+
+      if (invalidIds.length) {
+        throw new Error(`Invalid subcategory IDs: ${invalidIds.join(', ')}`);
+      }
+
+      // check if all provided subcategories ids are in database
+      const result = await Subcategory.find({
+        _id: { $exists: true, $in: value },
+      });
+
+      if (result.length !== value.length)
+        throw new Error(`Some subcategories were not found`);
+
+      // Check if each provided subcategory is associated with the given category
+      const subcategories = await Subcategory.find({
+        category: req.body.category,
+      });
+
+      const subcategoryIds = subcategories.map((subcategory) =>
+        subcategory._id.toString(),
+      );
+
+      result.forEach((subcategory) => {
+        if (!subcategoryIds.includes(subcategory._id.toString())) {
+          throw new Error(
+            `${subcategory.name} is not associated with the provided category`,
+          );
+        }
+      });
+
+      return true;
+    }),
+  check('brand')
     .optional()
     .isMongoId()
-    .withMessage('Invalid subcategory ID'),
-  check('brand').optional().isMongoId().withMessage('Invalid brand ID'),
+    .withMessage('Invalid brand ID')
+    .custom(async (value) => {
+      const brand = await Brand.findById(value);
+      if (!brand) throw new Error('No brand with this ID found');
+      return true;
+    }),
   check('ratingsAvarage')
     .optional()
     .isNumeric()
