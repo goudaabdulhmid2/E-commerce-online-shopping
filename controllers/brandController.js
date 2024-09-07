@@ -9,7 +9,7 @@ exports.createBrand = handlerFactory.createOne(Brand);
 // @desc  Get brands
 // @route GET /api/v1/brands
 // @access Public
-exports.getAllBrands = handlerFactory.getAll(Brand);
+exports.getAllBrands = handlerFactory.getAll(Brand, 'Brand');
 
 // @desc  Get spcific Brand
 // @route GET /api/v1/brands/:id

@@ -19,20 +19,26 @@ exports.getOne = (Model) =>
     });
   });
 
-exports.getAll = (Model) =>
+exports.getAll = (Model, modelName) =>
   catchAsync(async (req, res, next) => {
-    const features = new AppFeatures(Model.find(req.filterObj), req.query)
+    let filterObj = {};
+    if (req.filterObj) filterObj = { ...req.filterObj };
+
+    const docsCount = await Model.countDocuments();
+    const features = new AppFeatures(Model.find(filterObj), req.query)
       .filter()
       .sort()
-      .limitFileds()
-      .paginate();
+      .limitFields()
+      .paginate(docsCount)
+      .keyWordsSearch(modelName);
 
-    const docs = await features.query;
+    const { query, paginationResults } = features;
+    const docs = await query;
 
     res.status(200).json({
       status: 'success',
       results: docs.length,
-      page: req.query.page * 1 || 1,
+      paginationResults,
       data: {
         data: docs,
       },

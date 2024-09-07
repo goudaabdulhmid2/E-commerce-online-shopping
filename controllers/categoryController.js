@@ -9,7 +9,7 @@ exports.createCategory = handlerFactory.createOne(Category);
 // @desc  Get categories
 // @route GET /api/v1/categories
 // @access Public
-exports.getAllCategories = handlerFactory.getAll(Category);
+exports.getAllCategories = handlerFactory.getAll(Category, 'Category');
 
 // @desc  Get spcific category
 // @route GET /api/v1/categories/:id

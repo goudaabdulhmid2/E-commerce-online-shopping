@@ -19,7 +19,7 @@ exports.setCategoryFilter = (req, res, next) => {
 // @desc  get categories
 // @route GET /api/v1/subCategories
 // @access Public
-exports.getSubCatgories = handlerFactory.getAll(SubCategory);
+exports.getSubCatgories = handlerFactory.getAll(SubCategory, 'SubCategory');
 
 // @desc  get category
 // @route GET /api/v1/subCategories

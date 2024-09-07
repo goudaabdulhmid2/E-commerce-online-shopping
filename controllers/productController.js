@@ -9,7 +9,7 @@ exports.createProduct = handlerFactory.createOne(Product);
 // @desc  Get Products
 // @route GET /api/v1/products
 // @access Public
-exports.getAllProducts = handlerFactory.getAll(Product);
+exports.getAllProducts = handlerFactory.getAll(Product, 'Product');
 
 // @desc  Get spcific Product
 // @route GET /api/v1/products/:id
