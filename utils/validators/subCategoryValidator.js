@@ -1,4 +1,5 @@
 const { check } = require('express-validator');
+const slugify = require('slugify');
 const validatorController = require('../../controllers/validatorController');
 
 exports.getSubcategoryValidator = [
@@ -24,6 +25,12 @@ exports.createSubcategoryValidator = [
 
 exports.updateSubcategoryValidator = [
   check('id').isMongoId().withMessage('Invalid Subcategory id format.'),
+  check('name')
+    .optional()
+    .custom((val, { req }) => {
+      req.body.slug = slugify(val, { lower: true });
+      return true;
+    }),
   validatorController.catchError,
 ];
 

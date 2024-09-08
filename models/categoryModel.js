@@ -27,5 +27,10 @@ categorySchema.pre('save', function (next) {
   next();
 });
 
+// virtual field for image URL
+categorySchema.virtual('imageURL').get(function () {
+  return this.image ? `${process.env.BASE_URL}/categories/${this.image}` : '';
+});
+
 const Category = mongoose.model('Category', categorySchema);
 module.exports = Category;

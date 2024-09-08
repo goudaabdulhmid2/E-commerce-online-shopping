@@ -26,4 +26,9 @@ brandSchema.pre('save', function (next) {
   next();
 });
 
+// virtual field to get the image URL for the brand
+brandSchema.virtual('imageUrl').get(function () {
+  return this.image ? `${process.env.BASE_URL}/brands/${this.image}` : '';
+});
+
 module.exports = mongoose.model('Brand', brandSchema);

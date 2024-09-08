@@ -1,5 +1,4 @@
 const catchAsync = require('express-async-handler');
-const slugify = require('slugify');
 const AppFeatures = require('../utils/AppFeatures');
 const AppError = require('../utils/AppError');
 
@@ -19,13 +18,13 @@ exports.getOne = (Model) =>
     });
   });
 
-exports.getAll = (Model, modelName) =>
+exports.getAll = (Model, modelName = '') =>
   catchAsync(async (req, res, next) => {
-    let filterObj = {};
-    if (req.filterObj) filterObj = { ...req.filterObj };
+    let filter = {};
+    if (req.filterObj) filter = { ...req.filterObj };
 
     const docsCount = await Model.countDocuments();
-    const features = new AppFeatures(Model.find(filterObj), req.query)
+    const features = new AppFeatures(Model.find(filter), req.query)
       .filter()
       .sort()
       .limitFields()
@@ -47,11 +46,6 @@ exports.getAll = (Model, modelName) =>
 
 exports.updateOne = (Model) =>
   catchAsync(async (req, res, next) => {
-    if (req.body.name) req.body.slug = slugify(req.body.name, { lower: true });
-
-    if (req.body.title)
-      req.body.slug = slugify(req.body.title, { lower: true });
-
     const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
@@ -71,12 +65,12 @@ exports.updateOne = (Model) =>
 
 exports.createOne = (Model) =>
   catchAsync(async (req, res, next) => {
-    const doc = await Model.create(req.body);
+    const newDoc = await Model.create(req.body);
 
     res.status(201).json({
       status: 'success',
       data: {
-        doc,
+        newDoc,
       },
     });
   });

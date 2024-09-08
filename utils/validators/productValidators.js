@@ -1,5 +1,6 @@
 const { check } = require('express-validator');
 const mongoose = require('mongoose');
+const slugify = require('slugify');
 const validatorController = require('../../controllers/validatorController');
 const Category = require('../../models/categoryModel');
 const Subcategory = require('../../models/subCategoryModel');
@@ -17,6 +18,12 @@ exports.deleteProductValidator = [
 
 exports.updateProductValidator = [
   check('id').isMongoId().withMessage('Invalid product ID'),
+  check('title')
+    .optional()
+    .custom((val, { req }) => {
+      req.body.slug = slugify(val, { lower: true });
+      return true;
+    }),
   validatorController.catchError,
 ];
 

@@ -1,5 +1,8 @@
+const path = require('path');
+
 const express = require('express');
 const morgen = require('morgan');
+
 const AppError = require('./utils/AppError');
 const categoryRouter = require('./routes/categoryRouter');
 const subCategoryRouter = require('./routes/subCategoryRouter');
@@ -12,6 +15,9 @@ const app = express();
 if (process.env.NODE_ENV === 'development') {
   app.use(morgen('dev'));
 }
+
+// Serving static files from the /uploads directory
+app.use(express.static(path.join(__dirname, 'uploads')));
 
 // Body parser, reading data from body into req.body
 app.use(express.json({ limit: '10kb' }));

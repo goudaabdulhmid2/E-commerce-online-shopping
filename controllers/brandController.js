@@ -1,5 +1,30 @@
+const multer = require('multer');
+const sharp = require('sharp');
+const uuid = require('uuid');
+
+const catchAsync = require('express-async-handler');
 const Brand = require('../models/brandModel');
 const handlerFactory = require('./handlerFactory');
+const { uploadSingleImage } = require('./uploadImageController');
+
+// @desc  Upload brand logo
+exports.uploadBrandLogo = uploadSingleImage('image');
+
+// @desc  Resize and upload brand logo
+exports.resizeBrandLogo = catchAsync(async (req, res, next) => {
+  if (!req.file) return next();
+  req.file.filename = `brand-${uuid.v4()}-${Date.now()}.jpeg`;
+
+  await sharp(req.file.buffer)
+    .resize(600, 600)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`uploads/brands/${req.file.filename}`);
+
+  req.body.image = req.file.filename;
+
+  next();
+});
 
 // @desc  Creat Brand
 // @route POST /api/v1/brands
