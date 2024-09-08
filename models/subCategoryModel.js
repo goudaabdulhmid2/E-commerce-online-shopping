@@ -12,7 +12,7 @@ const subCategorySchema = new mongoose.Schema(
       maxlength: [32, 'Name is too long.'],
     },
     slug: String,
-    images: String,
+    images: [String],
     category: {
       type: mongoose.Schema.ObjectId,
       ref: 'Category',

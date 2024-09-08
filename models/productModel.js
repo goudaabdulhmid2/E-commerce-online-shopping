@@ -71,6 +71,8 @@ const productSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   },
 );
 
@@ -83,6 +85,19 @@ productSchema.pre(/^find/, function (next) {
 productSchema.pre('save', function (next) {
   this.slug = slugify(this.title, { lower: true });
   next();
+});
+
+productSchema.virtual('imageCoverUrl').get(function () {
+  return this.imageCover
+    ? `${process.env.BASE_URL}/products/${this.imageCover}`
+    : '';
+});
+
+productSchema.virtual('imagesUrls').get(function () {
+  if (!this.images.length) return [];
+  return this.images.map(
+    (image) => `${process.env.BASE_URL}/products/${image}`,
+  );
 });
 
 module.exports = mongoose.model('Product', productSchema);
