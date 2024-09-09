@@ -26,16 +26,17 @@ const subCategorySchema = new mongoose.Schema(
   },
 );
 
-// @desc Query middleware "popualte"
-// subCategorySchema.pre(/^find/, function (next) {
-//   this.populate({ path: 'category', select: 'name -_id ' });
-//   next();
-// });
-
 // @desc Pre middleware to create slug
 subCategorySchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
+});
+
+subCategorySchema.virtual('urlImages').get(function () {
+  if (this.images.length === 0) return [];
+  return this.images.map(
+    (image) => `${process.env.BASE_URL}/subcategories/${image}`,
+  );
 });
 
 module.exports = mongoose.model('SubCategory', subCategorySchema);

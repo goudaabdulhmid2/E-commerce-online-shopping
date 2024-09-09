@@ -5,13 +5,14 @@ const sharp = require('sharp');
 const Product = require('../models/productModel');
 const handlerFactory = require('./handlerFactory');
 
-const {
-  uploadSingleImage,
-  uploadMultipleImages,
-} = require('./uploadImageController');
+const { uploadMultipleImages } = require('./uploadImageController');
 
 // @desc  Upload product imageCover and images
-exports.uploadProductImages = uploadMultipleImages('imageCover', 'images');
+
+exports.uploadProductImages = uploadMultipleImages([
+  { name: 'imageCover', maxCount: 1 },
+  { name: 'images', maxCount: 5 },
+]);
 
 exports.resizeProductImages = catchAsync(async (req, res, next) => {
   if (req.files.imageCover) {
@@ -20,8 +21,8 @@ exports.resizeProductImages = catchAsync(async (req, res, next) => {
     await sharp(req.files.imageCover[0].buffer)
       .resize(2000, 1333)
       .toFormat('jpeg')
-      .jpeg({ quality: 90 })
-      .toFile(`uploads/productCovers/${req.files.filename}`);
+      .jpeg({ quality: 95 })
+      .toFile(`uploads/products/${req.files.filename}`);
 
     req.body.imageCover = req.files.filename;
   }
@@ -30,13 +31,13 @@ exports.resizeProductImages = catchAsync(async (req, res, next) => {
     req.body.images = [];
     await Promise.all(
       req.files.images.map(async (img, i) => {
-        const filename = `productImages-${uuid.v4()}-${Date.now()}-${i + 1}.jpeg`;
+        const filename = `product-${uuid.v4()}-${Date.now()}-${i + 1}.jpeg`;
 
         await sharp(img.buffer)
           .resize(1000, 666)
           .toFormat('jpeg')
           .jpeg({ quality: 90 })
-          .toFile(`uploads/productImages/${filename}`);
+          .toFile(`uploads/products/${filename}`);
 
         req.body.images.push(filename);
       }),

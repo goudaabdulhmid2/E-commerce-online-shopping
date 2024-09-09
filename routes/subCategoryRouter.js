@@ -12,6 +12,8 @@ router
     subCategoryController.getSubCatgories,
   )
   .post(
+    subCategoryController.uploadSubCategoryImages,
+    subCategoryController.resizeImages,
     subCategoryController.setCategoryIds,
     subCategoryValidator.createSubcategoryValidator,
     subCategoryController.createSubCategory,
@@ -24,6 +26,8 @@ router
     subCategoryController.getSubCategory,
   )
   .patch(
+    subCategoryController.uploadSubCategoryImages,
+    subCategoryController.resizeImages,
     subCategoryValidator.updateSubcategoryValidator,
     subCategoryController.updateSubCategory,
   )
