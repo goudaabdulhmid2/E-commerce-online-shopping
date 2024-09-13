@@ -8,7 +8,6 @@ const handlerFactory = require('./handlerFactory');
 const { uploadMultipleImages } = require('./uploadImageController');
 
 // @desc  Upload product imageCover and images
-
 exports.uploadProductImages = uploadMultipleImages([
   { name: 'imageCover', maxCount: 1 },
   { name: 'images', maxCount: 5 },

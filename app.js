@@ -9,6 +9,7 @@ const subCategoryRouter = require('./routes/subCategoryRouter');
 const brandRouter = require('./routes/brandRouter');
 const globalErrorHandler = require('./controllers/errorController');
 const productRouter = require('./routes/productRouter');
+const userRouter = require('./routes/userRouter');
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use('/api/v1/categories', categoryRouter);
 app.use('/api/v1/subcategories', subCategoryRouter);
 app.use('/api/v1/brands', brandRouter);
 app.use('/api/v1/products', productRouter);
+app.use('/api/v1/users', userRouter);
 
 // Handle unhandlled routes
 app.all('*', (req, res, next) => {
