@@ -17,6 +17,41 @@ exports.deletetUserValidator = [
 
 exports.updateUserValidator = [
   check('id').isMongoId().withMessage('Invalid user ID'),
+  check('email')
+    .notEmpty()
+    .withMessage('Email is required')
+    .isEmail()
+    .withMessage('Please enter a valid email')
+    .custom(
+      catchAsync(async (val) => {
+        const user = await User.findOne({ email: val });
+
+        if (user) {
+          throw new Error('Email already exists');
+        }
+
+        return true;
+      }),
+    ),
+  check('profileImage').optional(),
+  check('role').optional(),
+  check('phone')
+    .optional()
+    .isMobilePhone(['ar-EG', 'ar-SA'])
+    .withMessage(
+      'Please enter a valid phone number! only accept EG or SA phone numbers',
+    )
+    .custom(
+      catchAsync(async (val) => {
+        const user = await User.findOne({ phone: val });
+
+        if (user) {
+          throw new Error('Phone already exists');
+        }
+
+        return true;
+      }),
+    ),
   validatorController.catchError,
 ];
 
@@ -77,6 +112,43 @@ exports.createUserValidator = [
           throw new Error('Phone already exists');
         }
 
+        return true;
+      }),
+    ),
+  validatorController.catchError,
+];
+
+exports.changePasswordValidator = [
+  check('id').isMongoId().withMessage('invalid user ID.'),
+  check('currentPassword')
+    .notEmpty()
+    .withMessage('Current Password is required'),
+  check('passwordConfirm')
+    .notEmpty()
+    .withMessage('Confirm Password is required.'),
+  check('password')
+    .notEmpty()
+    .withMessage('Password is required.')
+    .isLength({ min: 8 })
+    .withMessage('Password too short.')
+    .custom(
+      catchAsync(async (val, { req }) => {
+        const user = await User.findById(req.params.id);
+
+        if (!user) {
+          throw new Error('User not found.');
+        }
+
+        if (
+          user &&
+          !(await user.correctPassword(req.body.currentPassword, user.password))
+        ) {
+          throw new Error('Current Password is incorrect.');
+        }
+
+        if (val !== req.body.passwordConfirm) {
+          throw new Error('Passwords do not match.');
+        }
         return true;
       }),
     ),

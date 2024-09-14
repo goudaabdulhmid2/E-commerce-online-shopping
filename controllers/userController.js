@@ -63,20 +63,17 @@ exports.updateUser = catchAsync(async (req, res, next) => {
 });
 
 exports.changeUserPassword = catchAsync(async (req, res, next) => {
-  const user = await User.findByIdAndUpdate(
-    req.params.id,
-    {
-      password: await bcrypt.hash(req.body.password, 12),
-    },
-    {
-      new: true,
-      runValidators: true,
-    },
-  );
+  const user = await User.findById(req.params.id);
 
   if (!user) {
     return next(new AppError('No user found with that ID', 404));
   }
+
+  user.password = req.body.password;
+
+  // hash will be in pre middleware
+  await user.save();
+
   res.status(200).json({
     status: 'success',
     doc: user,
