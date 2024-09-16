@@ -162,3 +162,43 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+// @desc  Delete Me
+// @route DELETE /api/v1/users/deleteMe
+// @access Private/protect
+exports.deleteMe = catchAsync(async (req, res, next) => {
+  await User.findByIdAndUpdate(
+    req.user.id,
+    {
+      active: false,
+    },
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});
+
+// @desc  Active Me
+// @route PATCH /api/v1/users/activeMe
+// @access Private/protect
+exports.activeMe = catchAsync(async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(
+    req.user.id,
+    { active: true },
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
+
+  res.status(200).json({
+    status: 'success',
+    data: { user },
+  });
+});

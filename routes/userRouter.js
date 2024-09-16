@@ -13,6 +13,11 @@ router.patch(
 );
 
 router.use(authController.protect);
+
+router.patch('/activeMe', userController.activeMe);
+
+router.use(authController.isActive);
+
 router
   .route('/')
   .get(authController.restrictTo('admin', 'manager'), userController.getUsers)
@@ -38,6 +43,8 @@ router.patch(
   userValidator.updateMeValidator,
   userController.updateMe,
 );
+
+router.delete('/deleteMe', userController.deleteMe);
 
 router.use(authController.restrictTo('admin'));
 router

@@ -29,10 +29,10 @@ exports.updateUserValidator = [
     .isEmail()
     .withMessage('Please enter a valid email')
     .custom(
-      catchAsync(async (val) => {
+      catchAsync(async (val, { req }) => {
         const user = await User.findOne({ email: val });
 
-        if (user) {
+        if (user && user.id !== req.params.id) {
           throw new Error('Email already exists');
         }
 
@@ -48,10 +48,10 @@ exports.updateUserValidator = [
       'Please enter a valid phone number! only accept EG or SA phone numbers',
     )
     .custom(
-      catchAsync(async (val) => {
+      catchAsync(async (val, { req }) => {
         const user = await User.findOne({ phone: val });
 
-        if (user) {
+        if (user && user.id !== req.params.id) {
           throw new Error('Phone already exists');
         }
 
@@ -210,10 +210,10 @@ exports.updateMeValidator = [
     .isEmail()
     .withMessage('Please enter a valid email')
     .custom(
-      catchAsync(async (val) => {
+      catchAsync(async (val, { req }) => {
         const user = await User.findOne({ email: val });
 
-        if (user) {
+        if (user && user.id !== req.user.id) {
           throw new Error('Email already exists');
         }
 
@@ -229,10 +229,10 @@ exports.updateMeValidator = [
       'Please enter a valid phone number! only accept EG or SA phone numbers',
     )
     .custom(
-      catchAsync(async (val) => {
+      catchAsync(async (val, { req }) => {
         const user = await User.findOne({ phone: val });
 
-        if (user) {
+        if (user && user.id !== req.user.id) {
           throw new Error('Phone already exists');
         }
 

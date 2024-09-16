@@ -186,3 +186,11 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
       'Password has been reset successfully. Please log in again with your new password.',
   });
 });
+
+// @desc check if user active
+exports.isActive = (req, res, next) => {
+  if (!req.user.active) {
+    return next(new AppError('Your account is inactive.', 403));
+  }
+  next();
+};
