@@ -1,15 +1,12 @@
 const catchAsync = require('express-async-handler');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
+const crypto = require('crypto');
 
 const User = require('../models/userModel');
 const AppError = require('../utils/AppError');
-
-const signToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
-  });
-};
+const SendEmail = require('../utils/SendEmail');
+const signToken = require('../utils/createToken');
 
 // @desc  sign a user
 // @route Post /api/v1/auth/signup
@@ -41,7 +38,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }).select('+password');
 
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('incorrect email or password.', 401));
@@ -69,7 +66,7 @@ exports.protect = catchAsync(async (req, res, next) => {
     token = req.headers.authorization.split(' ')[1];
   } // else if (req.cookies.jwt) token = req.cookies.jwt;
 
-  if (!token) {
+  if (!token || token === 'null') {
     return next(new AppError('You are not logged in.', 401));
   }
 
@@ -94,7 +91,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   next();
 });
 
-// @desc permissions
+// @desc permissions Authorization
 exports.restrictTo = (...roels) => {
   return (req, res, next) => {
     if (!roels.includes(req.user.role)) {
@@ -106,3 +103,86 @@ exports.restrictTo = (...roels) => {
     next();
   };
 };
+
+// @desc forgot password
+// @route GET api/v1/auth/forgotPassword
+// @access Public
+exports.forgetPassword = catchAsync(async (req, res, next) => {
+  // get user based on email
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) return next(new AppError('There is no user with that email', 404));
+
+  // genrate random code and save in database
+  const resetCode = user.createRandomCode();
+  await user.save({ validateBeforeSave: false });
+
+  // send email with reset code
+  try {
+    await new SendEmail(user, resetCode).sendPasswordReset();
+    res.status(200).json({
+      status: 'success',
+      message: 'Reset password email sent',
+    });
+  } catch (err) {
+    user.passwordResetCode = undefined;
+    user.passwordResetExpires = undefined;
+    user.passwordResetVerify = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    console.error('Error sending email:', err);
+    return next(new AppError('Failed to send email. Try again letter!', 500));
+  }
+});
+
+// @desc verify reset code
+// @route POST api/v1/auth/verifyResetCode
+// @access Public
+exports.verifyResetCode = catchAsync(async (req, res, next) => {
+  // get user based on code
+  const hashCode = crypto
+    .createHash('sha256')
+    .update(req.body.code)
+    .digest('hex');
+
+  const user = await User.findOne({
+    passwordResetCode: hashCode,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+
+  if (!user)
+    return next(new AppError('Reset code is invalid or expired.', 400));
+
+  // verify code
+  user.passwordResetVerify = true;
+  await user.save({ validateBeforeSave: false });
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Reset code is valid.',
+  });
+});
+
+// @desc reset password
+// @route POST api/v1/auth/resetPassword
+// @access Public
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  // get user based on email
+  const user = await User.findOne({ email: req.body.email });
+
+  // check if user and verify reset password
+  if (!user || !user.passwordResetVerify)
+    return next(new AppError('Reset password request is invalid.', 400));
+
+  // update password
+  user.password = req.body.password;
+  user.passwordResetCode = undefined;
+  user.passwordResetExpires = undefined;
+  user.passwordResetVerify = undefined;
+  await user.save();
+
+  res.status(200).json({
+    status: 'success',
+    message:
+      'Password has been reset successfully. Please log in again with your new password.',
+  });
+});

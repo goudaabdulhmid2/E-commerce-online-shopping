@@ -7,6 +7,7 @@ const handlerFactory = require('./handlerFactory');
 const User = require('../models/userModel');
 const { uploadSingleImage } = require('./uploadImageController');
 const AppError = require('../utils/AppError');
+const signToken = require('../utils/createToken');
 
 // @desc  Upload profile image for user
 exports.uploadProfileImage = uploadSingleImage('profileImage');
@@ -76,7 +77,9 @@ exports.changeUserPassword = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: 'success',
-    doc: user,
+    data: {
+      user,
+    },
   });
 });
 
@@ -94,3 +97,68 @@ exports.getUser = handlerFactory.getOne(User);
 // @route GET /api/v1/users
 // @access Private
 exports.getUsers = handlerFactory.getAll(User);
+
+// @desc  Get my data
+// @route GET /api/v1/users/me
+// @access Private/protect
+exports.getMe = (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
+};
+
+// @desc  Updat  my password
+// @route PATCH /api/v1/users/updateMyPassword
+// @access Private/protect
+exports.updateMyPassword = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+
+  if (!user) {
+    return next(new AppError('No user found with that ID', 404));
+  }
+
+  user.password = req.body.password;
+
+  // hash will be in pre middleware
+  await user.save();
+
+  const token = signToken(user.id);
+
+  res.status(200).json({
+    status: 'success',
+    token,
+    data: {
+      user,
+    },
+  });
+});
+
+// @desc  Updat Me
+// @route PATCH /api/v1/users/updateMe
+// @access Private/protect
+exports.updateMe = catchAsync(async (req, res, next) => {
+  const updateUser = await User.findByIdAndUpdate(
+    req.user.id,
+    {
+      name: req.body.name,
+      email: req.body.email,
+      profileImage: req.body.profileImage,
+      slug: req.body.slug,
+      phone: req.body.phone,
+    },
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
+
+  if (!updateUser) {
+    return next(new AppError('No user found with that ID', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user: updateUser,
+    },
+  });
+});

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema(
   {
@@ -25,6 +26,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Password is required'],
       minlength: [8, 'Password must be at least 8 characters long'],
+      select: false,
     },
     role: {
       type: String,
@@ -36,6 +38,9 @@ const userSchema = new mongoose.Schema(
       default: true,
     },
     passwordChangedAt: Date,
+    passwordResetCode: String,
+    passwordResetExpires: Date,
+    passwordResetVerify: Boolean,
   },
   {
     timestamps: true,
@@ -89,6 +94,19 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
     return JWTTimestamp < changedTimestamp;
   }
   return false;
+};
+
+userSchema.methods.createRandomCode = function () {
+  const resetCode = (Math.floor(Math.random() * 900000) + 100000).toString();
+
+  this.passwordResetCode = crypto
+    .createHash('sha256')
+    .update(resetCode)
+    .digest('hex');
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+  this.passwordResetVerify = false;
+
+  return resetCode;
 };
 
 module.exports = mongoose.model('User', userSchema);

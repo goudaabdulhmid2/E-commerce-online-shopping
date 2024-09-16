@@ -71,3 +71,22 @@ exports.loginValidator = [
   check('password').notEmpty().withMessage('Password is required'),
   validatorController.catchError,
 ];
+
+exports.resetPasswordValidator = [
+  check('email').notEmpty().withMessage('Email is required').isEmail(),
+  check('password')
+    .notEmpty()
+    .withMessage('New password is required')
+    .isLength({ min: 8 })
+    .withMessage('New password must be at least 8 characters')
+    .custom((val, { req }) => {
+      if (val !== req.body.confirmPassword) {
+        throw new Error('Passwords do not match');
+      }
+      return true;
+    }),
+  check('confirmPassword')
+    .notEmpty()
+    .withMessage('Confirm password is required'),
+  validatorController.catchError,
+];

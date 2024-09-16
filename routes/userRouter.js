@@ -24,6 +24,21 @@ router
     userController.creatUser,
   );
 
+router.get('/me', userController.getMe, userController.getUser);
+router.patch(
+  '/updateMyPassword',
+  userValidator.updateMyPasswordValidator,
+  userController.updateMyPassword,
+);
+
+router.patch(
+  '/updateMe',
+  userController.uploadProfileImage,
+  userController.resizeProfileImage,
+  userValidator.updateMeValidator,
+  userController.updateMe,
+);
+
 router.use(authController.restrictTo('admin'));
 router
   .route('/:id')
