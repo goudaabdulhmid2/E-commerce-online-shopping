@@ -140,12 +140,6 @@ exports.createProductValidator = [
     .withMessage('Rating average must be a number')
     .isLength(1, 5)
     .withMessage('Rating average must be between 1 and 5'),
-  check('rating')
-    .optional()
-    .isNumeric()
-    .withMessage('Rating must be a number')
-    .isLength({ min: 1, max: 5 })
-    .withMessage('Rating must be between 1 and 5'),
   check('ratingsQuantity')
     .optional()
     .isNumeric()

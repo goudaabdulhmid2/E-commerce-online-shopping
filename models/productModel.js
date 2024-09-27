@@ -52,12 +52,6 @@ const productSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: 'Brand',
     },
-    rating: {
-      type: Number,
-      min: [1, 'Rating must be between 1 and 5'],
-      max: [5, 'Rating must be between 1 and 5'],
-      default: 4.5,
-    },
     ratingsAverage: {
       type: Number,
       min: [1, 'Rating average must be between 1 and 5'],
@@ -75,6 +69,13 @@ const productSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   },
 );
+
+// virtual populate
+productSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'product',
+  localField: '_id',
+});
 
 // @desc queary middleware to populate category
 productSchema.pre(/^find/, function (next) {

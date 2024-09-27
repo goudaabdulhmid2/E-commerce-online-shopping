@@ -3,8 +3,12 @@ const express = require('express');
 const productController = require('../controllers/productController');
 const productValidator = require('../utils/validators/productValidators');
 const authController = require('../controllers/authController');
+const reviewRouter = require('./reviewRouter');
 
 const router = express.Router();
+
+// @desc Nested route for reviews under product
+router.use('/:productId/reviews', reviewRouter);
 
 router
   .route('/')

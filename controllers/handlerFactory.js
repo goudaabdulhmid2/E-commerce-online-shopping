@@ -2,9 +2,14 @@ const catchAsync = require('express-async-handler');
 const AppFeatures = require('../utils/AppFeatures');
 const AppError = require('../utils/AppError');
 
-exports.getOne = (Model) =>
+exports.getOne = (Model, populationOpt = '') =>
   catchAsync(async (req, res, next) => {
-    const doc = await Model.findById(req.params.id);
+    let query = Model.findById(req.params.id);
+
+    // If the population
+    if (populationOpt) query.populate(populationOpt);
+
+    const doc = await query;
 
     if (!doc) {
       return next(new AppError('No document found with that ID', 404));

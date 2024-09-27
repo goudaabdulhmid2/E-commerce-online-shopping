@@ -74,7 +74,7 @@ class ApiFeatures {
       const query = {};
       // The $or operator is used to match documents where at least one of the specified conditions is true
 
-      if (modelName === 'Product') {
+      if (modelName === 'Product' || modelName === 'Review') {
         query.$or = [
           {
             title: { $regex: this.queryString.keyword, $options: 'i' },

@@ -6,28 +6,9 @@ const authController = require('../controllers/authController');
 
 const router = express.Router();
 
-router.patch(
-  '/changePassword/:id',
-  userValidator.changePasswordValidator,
-  userController.changeUserPassword,
-);
-
 router.use(authController.protect);
-
 router.patch('/activeMe', userController.activeMe);
-
 router.use(authController.isActive);
-
-router
-  .route('/')
-  .get(authController.restrictTo('admin', 'manager'), userController.getUsers)
-  .post(
-    authController.restrictTo('admin'),
-    userController.uploadProfileImage,
-    userController.resizeProfileImage,
-    userValidator.createUserValidator,
-    userController.creatUser,
-  );
 
 router.get('/me', userController.getMe, userController.getUser);
 router.patch(
@@ -35,7 +16,6 @@ router.patch(
   userValidator.updateMyPasswordValidator,
   userController.updateMyPassword,
 );
-
 router.patch(
   '/updateMe',
   userController.uploadProfileImage,
@@ -43,10 +23,26 @@ router.patch(
   userValidator.updateMeValidator,
   userController.updateMe,
 );
-
 router.delete('/deleteMe', userController.deleteMe);
 
-router.use(authController.restrictTo('admin'));
+// Admin
+router.use(authController.restrictTo('admin', 'manager'));
+router.patch(
+  '/changePassword/:id',
+  userValidator.changePasswordValidator,
+  userController.changeUserPassword,
+);
+
+router
+  .route('/')
+  .get(userController.getUsers)
+  .post(
+    userController.uploadProfileImage,
+    userController.resizeProfileImage,
+    userValidator.createUserValidator,
+    userController.creatUser,
+  );
+
 router
   .route('/:id')
   .get(userValidator.getUserValidator, userController.getUser)

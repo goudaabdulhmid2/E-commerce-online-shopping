@@ -58,7 +58,7 @@ exports.getAllProducts = handlerFactory.getAll(Product, 'Product');
 // @desc  Get spcific Product
 // @route GET /api/v1/products/:id
 // @access Public
-exports.getProduct = handlerFactory.getOne(Product);
+exports.getProduct = handlerFactory.getOne(Product, 'reviews');
 
 // @desc  Update spcific Product
 // @route PATCH /api/v1/products/:id
