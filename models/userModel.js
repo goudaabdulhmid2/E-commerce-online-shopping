@@ -36,6 +36,22 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    wishlist: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Product',
+      },
+    ],
+    addresses: [
+      {
+        id: mongoose.Schema.Types.ObjectId,
+        alias: String,
+        details: String,
+        phone: String,
+        city: String,
+        postalCode: String,
+      },
+    ],
     passwordChangedAt: Date,
     passwordResetCode: String,
     passwordResetExpires: Date,

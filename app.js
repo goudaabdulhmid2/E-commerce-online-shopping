@@ -12,6 +12,8 @@ const productRouter = require('./routes/productRouter');
 const userRouter = require('./routes/userRouter');
 const authRouter = require('./routes/authRouter');
 const reviewRouter = require('./routes/reviewRouter');
+const wishlistRouter = require('./routes/wishlistRouter');
+const addressRouter = require('./routes/addressRouter');
 
 const app = express();
 
@@ -33,6 +35,8 @@ app.use('/api/v1/products', productRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/wishlist', wishlistRouter);
+app.use('/api/v1/addresses', addressRouter);
 
 // Handle unhandlled routes
 app.all('*', (req, res, next) => {
