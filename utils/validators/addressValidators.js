@@ -5,7 +5,28 @@ const validatorController = require('../../controllers/validatorController');
 const User = require('../../models/userModel');
 
 exports.addAddressValidator = [
-  check('alias').optional().isString().withMessage('Alias must be a string'),
+  check('alias')
+    .optional()
+    .isString()
+    .withMessage('Alias must be a string')
+    .custom(
+      catchAsync(async (val, { req }) => {
+        const user = await User.findById(req.user.id);
+
+        if (!user) {
+          throw new Error('User not found');
+        }
+
+        const aliasDublicate = user.addresses.some(
+          (address) => address.alias === val,
+        );
+
+        if (aliasDublicate) {
+          throw new Error('Alias already exists');
+        }
+        return true;
+      }),
+    ),
   check('details')
     .optional()
     .isString()
@@ -38,7 +59,7 @@ exports.removeAddressValidator = [
         }
 
         const addressExists = user.addresses.some(
-          (address) => address.id.toString() === val,
+          (address) => address._id.toString() === val,
         );
 
         if (!addressExists) {

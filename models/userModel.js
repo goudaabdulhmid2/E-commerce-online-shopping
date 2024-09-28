@@ -44,7 +44,6 @@ const userSchema = new mongoose.Schema(
     ],
     addresses: [
       {
-        id: mongoose.Schema.Types.ObjectId,
         alias: String,
         details: String,
         phone: String,

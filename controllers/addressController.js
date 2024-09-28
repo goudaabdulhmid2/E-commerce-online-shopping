@@ -34,7 +34,7 @@ exports.removeAddress = catchAsync(async (req, res, next) => {
   const user = await User.findByIdAndUpdate(
     req.user.id,
     {
-      $pull: { addresses: { id: req.params.addressId } },
+      $pull: { addresses: { _id: req.params.addressId } },
     },
     {
       new: true,
