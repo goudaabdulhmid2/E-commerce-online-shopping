@@ -4,16 +4,8 @@ const express = require('express');
 const morgen = require('morgan');
 
 const AppError = require('./utils/AppError');
-const categoryRouter = require('./routes/categoryRouter');
-const subCategoryRouter = require('./routes/subCategoryRouter');
-const brandRouter = require('./routes/brandRouter');
 const globalErrorHandler = require('./controllers/errorController');
-const productRouter = require('./routes/productRouter');
-const userRouter = require('./routes/userRouter');
-const authRouter = require('./routes/authRouter');
-const reviewRouter = require('./routes/reviewRouter');
-const wishlistRouter = require('./routes/wishlistRouter');
-const addressRouter = require('./routes/addressRouter');
+const mountRoutes = require('./routes');
 
 const app = express();
 
@@ -28,15 +20,7 @@ app.use(express.static(path.join(__dirname, 'uploads')));
 app.use(express.json({ limit: '10kb' }));
 
 // Mount Routes
-app.use('/api/v1/categories', categoryRouter);
-app.use('/api/v1/subcategories', subCategoryRouter);
-app.use('/api/v1/brands', brandRouter);
-app.use('/api/v1/products', productRouter);
-app.use('/api/v1/users', userRouter);
-app.use('/api/v1/auth', authRouter);
-app.use('/api/v1/reviews', reviewRouter);
-app.use('/api/v1/wishlist', wishlistRouter);
-app.use('/api/v1/addresses', addressRouter);
+mountRoutes(app);
 
 // Handle unhandlled routes
 app.all('*', (req, res, next) => {
