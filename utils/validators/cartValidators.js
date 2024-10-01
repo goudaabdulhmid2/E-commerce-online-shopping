@@ -11,42 +11,12 @@ exports.addProductToCartValidator = [
     .notEmpty()
     .withMessage('Product id is required.')
     .isMongoId()
-    .withMessage('Invalid product id.')
-    .custom(
-      catchAsync(async (val, { req }) => {
-        const product = await Product.findById(val);
-
-        if (!product) throw new AppError('Product not found', 404);
-
-        const colorExist = product.colors.find((el) => el === req.body.color);
-
-        if (!colorExist) new AppError("This color doesn't exist.", 400);
-
-        return true;
-      }),
-    ),
+    .withMessage('Invalid product id.'),
   validatorController.catchError,
 ];
 
 exports.removeItemFromCartValidator = [
-  check('itemId')
-    .isMongoId()
-    .withMessage('Invalid item id.')
-    .custom(
-      catchAsync(async (val, { req }) => {
-        const cart = await Cart.findOne({ user: req.user.id });
-        if (!cart) {
-          throw new Error('There is no cart for this user.');
-        }
-
-        const itemExists = cart.cartItems.some((item) => item.id === val);
-
-        if (!itemExists) {
-          throw new Error('Item not found in cart.');
-        }
-        return true;
-      }),
-    ),
+  check('itemId').isMongoId().withMessage('Invalid item id.'),
   validatorController.catchError,
 ];
 

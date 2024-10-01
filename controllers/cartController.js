@@ -6,11 +6,25 @@ const Product = require('../models/productModel');
 const Coupon = require('../models/couponModel');
 
 const calcTotalPrice = (cart) => {
-  cart.totalPrice = cart.cartItems.reduce(
+  const total = cart.cartItems.reduce(
     (acc, item) => acc + item.price * item.quantity,
     0,
   );
-  cart.totalPriceAfterDiscount = undefined;
+  cart.totalPrice = total;
+  if (cart.coupon) {
+    cart.totalPriceAfterDiscount = Math.max(
+      0,
+      (total - (total * cart.coupon) / 100).toFixed(2),
+    );
+  } else {
+    cart.totalPriceAfterDiscount = undefined;
+  }
+};
+
+const checkCartExists = async (userId, next) => {
+  const cart = await Cart.findOne({ user: userId });
+  if (!cart) throw new AppError('No cart found for this user', 404);
+  return cart;
 };
 
 // @dsec add product to cart
@@ -23,6 +37,12 @@ exports.addProductToCart = catchAsync(async (req, res, next) => {
   // check if product exists
   if (!product) {
     return next(new AppError('Product not found', 404));
+  }
+
+  // check if color exist
+  const colorExist = product.colors.find((el) => el === color);
+  if (!colorExist) {
+    return next(new AppError("This color doesn't exist.", 400));
   }
 
   // Get cart for user
@@ -73,11 +93,7 @@ exports.addProductToCart = catchAsync(async (req, res, next) => {
 // @route GET api/v1/cart
 // @access protected/User
 exports.getUserCart = catchAsync(async (req, res, next) => {
-  const cart = await Cart.findOne({ user: req.user.id });
-
-  if (!cart) {
-    return next(new AppError('There is no cart for this user.', 404));
-  }
+  const cart = await checkCartExists(req.user.id, next);
 
   res.status(200).json({
     status: 'success',
@@ -92,14 +108,18 @@ exports.getUserCart = catchAsync(async (req, res, next) => {
 // @route Delete api/v1/cart/:itemId
 // @access protected/User
 exports.removeItemFromCart = catchAsync(async (req, res, next) => {
-  const cart = await Cart.findOneAndUpdate(
-    { user: req.user.id },
-    {
-      $pull: { cartItems: { _id: req.params.itemId } },
-    },
-    {
-      new: true,
-    },
+  const cart = await checkCartExists(req.user.id, next);
+
+  const itemExists = cart.cartItems.some(
+    (item) => item.id === req.params.itemId,
+  );
+
+  if (!itemExists) {
+    return next(new AppError('Item not found in cart.', 404));
+  }
+
+  cart.cartItems = cart.cartItems.filter(
+    (item) => item.id !== req.params.itemId,
   );
 
   calcTotalPrice(cart);
@@ -136,11 +156,7 @@ exports.clearCart = catchAsync(async (req, res, next) => {
 // @access protected/User
 exports.updateCartItemQuantity = catchAsync(async (req, res, next) => {
   const { quantity } = req.body;
-  const cart = await Cart.findOne({ user: req.user.id });
-
-  if (!cart) {
-    return next(new AppError('There is no cart for this user.', 404));
-  }
+  const cart = await checkCartExists(req.user.id, next);
 
   const itemIndex = cart.cartItems.findIndex(
     (item) => item.id === req.params.itemId,
@@ -186,12 +202,8 @@ exports.applyCoupon = catchAsync(async (req, res, next) => {
     );
   }
 
-  const discount = (cart.totalPrice * couponExist.discount) / 100;
-  cart.totalPriceAfterDiscount = Math.max(
-    0,
-    (cart.totalPrice - discount).toFixed(2),
-  );
-
+  cart.coupon = couponExist.discount;
+  calcTotalPrice(cart);
   await cart.save();
 
   res.status(200).json({
