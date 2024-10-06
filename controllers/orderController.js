@@ -207,9 +207,9 @@ exports.checkOutSession = catchAsync(async (req, res, next) => {
     customer_email: req.user.email,
     client_reference_id: cart.id,
     metadata: {
-      shippingAdress: req.body.shippingAdress,
-      taxPrice,
-      shippingPrice,
+      shippingAdress: JSON.stringify(req.body.shippingAdress),
+      taxPrice: taxPrice.toString(),
+      shippingPrice: shippingPrice.toString(),
     },
   });
 
@@ -225,8 +225,11 @@ exports.checkOutSession = catchAsync(async (req, res, next) => {
 const createCardOrder = catchAsync(async (session, next) => {
   const cartId = session.client_reference_id;
   const email = session.customer_email;
-  const totalOrderPrice = session.display_items[0].amount / 100;
-  const { taxPrice, shippingPrice, shippingAdress } = session.metadata;
+  const totalOrderPrice = session.amount_total / 100;
+
+  // Parse stringified shipping address back to an object
+  const shippingAdress = JSON.parse(session.metadata.shippingAdress);
+  const { taxPrice, shippingPrice } = session.metadata;
 
   const cart = await Cart.findById(cartId);
   if (!cart) {
@@ -243,8 +246,8 @@ const createCardOrder = catchAsync(async (session, next) => {
     user: user.id,
     cartItems: cart.cartItems,
     shippingAdress,
-    taxPrice,
-    shippingPrice,
+    taxPrice: parseFloat(taxPrice),
+    shippingPrice: parseFloat(shippingPrice),
     totalOrderPrice,
     paymentMethodType: 'card',
     isPaid: true,
@@ -276,6 +279,9 @@ const createCardOrder = catchAsync(async (session, next) => {
   await Cart.findByIdAndDelete(cartId);
 });
 
+// @desc webhook will run when stripe payment sucess paid
+// @route POST /webhook-checkout
+// @access Protected/user
 exports.webhookCheckout = catchAsync(async (req, res, next) => {
   const sig = req.headers['stripe-signature'];
 
