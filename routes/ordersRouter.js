@@ -15,7 +15,11 @@ router.use(authController.protect);
 
 router
   .route('/checkout-session')
-  .get(authController.restrictTo('user'), orderController.checkOutSession);
+  .get(
+    authController.restrictTo('user'),
+    createOrderValidator,
+    orderController.checkOutSession,
+  );
 
 router
   .route('/')

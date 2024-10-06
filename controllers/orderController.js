@@ -7,6 +7,7 @@ const AppError = require('../utils/AppError');
 const Order = require('../models/orderModel');
 const Cart = require('../models/cartModel');
 const Product = require('../models/productModel');
+const User = require('../models/userModel');
 
 exports.setFilterForLoogedUser = (req, res, next) => {
   if (req.user && req.user.role === 'user') {
@@ -191,7 +192,7 @@ exports.checkOutSession = catchAsync(async (req, res, next) => {
     line_items: [
       {
         price_data: {
-          currency: 'egp',
+          currency: process.env.CURRENCY || 'egp',
           unit_amount: unitAmount,
           product_data: {
             name: req.user.name,
@@ -205,7 +206,11 @@ exports.checkOutSession = catchAsync(async (req, res, next) => {
     cancel_url: `${req.protocol}://${req.get('host')}/cart`,
     customer_email: req.user.email,
     client_reference_id: cart.id,
-    metadata: req.body.shippingAdress,
+    metadata: {
+      shippingAdress: req.body.shippingAdress,
+      taxPrice,
+      shippingPrice,
+    },
   });
 
   // send session
@@ -215,6 +220,60 @@ exports.checkOutSession = catchAsync(async (req, res, next) => {
       session,
     },
   });
+});
+
+const createCardOrder = catchAsync(async (session, next) => {
+  const cartId = session.client_reference_id;
+  const email = session.customer_email;
+  const totalOrderPrice = session.display_items[0].amount / 100;
+  const { taxPrice, shippingPrice, shippingAdress } = session.metadata;
+
+  const cart = await Cart.findById(cartId);
+  if (!cart) {
+    return next(new AppError('Cart not found for this user.', 404));
+  }
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return next(new AppError('User not found.', 404));
+  }
+
+  // Create Order with
+  const order = await Order.create({
+    user: user.id,
+    cartItems: cart.cartItems,
+    shippingAdress,
+    taxPrice,
+    shippingPrice,
+    totalOrderPrice,
+    paymentMethodType: 'card',
+    isPaid: true,
+    paidAt: Date.now(),
+  });
+
+  if (!order) {
+    return next(
+      new AppError('The order was not created!. something wrong.', 400),
+    );
+  }
+
+  // After creating order, decrement product quantity, increment product sold
+  const bulkOption = cart.cartItems.map((item) => ({
+    updateOne: {
+      filter: {
+        _id: item.product,
+      },
+      update: {
+        $inc: { quantity: -item.quantity, sold: +item.quantity },
+      },
+    },
+  }));
+
+  // bulkWrite send multiple opration to mongoDB
+  await Product.bulkWrite(bulkOption, {});
+
+  // clear cart
+  await Cart.findByIdAndDelete(cartId);
 });
 
 exports.webhookCheckout = catchAsync(async (req, res, next) => {
@@ -232,6 +291,9 @@ exports.webhookCheckout = catchAsync(async (req, res, next) => {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
   if (event.type === 'checkout.session.completed') {
-    console.log('Create order here ....');
+    // create order
+    createCardOrder(event.data.object, next);
   }
+
+  res.status(200).json({ recevied: true });
 });
