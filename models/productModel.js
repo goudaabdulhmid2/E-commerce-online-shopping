@@ -95,8 +95,8 @@ productSchema.virtual('imageCoverUrl').get(function () {
 });
 
 productSchema.virtual('imagesUrls').get(function () {
-  if (!this.images.length) return [];
-  return this.images.map(
+  if (!this.images?.length) return [];
+  return this.images?.map(
     (image) => `${process.env.BASE_URL}/products/${image}`,
   );
 });

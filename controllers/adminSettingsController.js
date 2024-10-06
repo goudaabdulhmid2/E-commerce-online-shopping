@@ -16,12 +16,9 @@ exports.updateTaxAndShippingPrice = catchAsync(async (req, res, next) => {
 
   await settings.save();
 
-  await client.set(
-    'settings',
-    JSON.stringify(settings),
-    'EX',
-    process.env.CACHE_EXPIRATION_TIME,
-  );
+  await client.set('settings', JSON.stringify(settings), {
+    EX: process.env.CACHE_EXPIRATION_TIME,
+  });
 
   res.status(200).json({
     status: 'success',

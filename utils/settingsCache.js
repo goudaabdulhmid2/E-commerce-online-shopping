@@ -16,12 +16,9 @@ exports.getSettings = catchAsync(async () => {
       settings = await Settings.create({});
     }
 
-    await client.set(
-      'settings',
-      JSON.parse(settings),
-      'EX',
-      process.env.CACHE_EXPIRATION_TIME,
-    );
+    await client.set('settings', JSON.stringify(settings), {
+      EX: process.env.CACHE_EXPIRATION_TIME,
+    });
 
     return settings;
   }

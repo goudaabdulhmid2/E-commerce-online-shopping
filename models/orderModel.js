@@ -1,6 +1,4 @@
-const { type } = require('express/lib/response');
 const mongoose = require('mongoose');
-const { bool } = require('sharp');
 
 const orderSchema = new mongoose.Schema(
   {
@@ -57,5 +55,14 @@ const orderSchema = new mongoose.Schema(
     toJSON: { virtuals: true },
   },
 );
+
+orderSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'user',
+    select: 'name email phone profileImage',
+  }).populate({ path: 'cartItems.product', select: 'title imageCover images' });
+
+  next();
+});
 
 module.exports = mongoose.model('Order', orderSchema);

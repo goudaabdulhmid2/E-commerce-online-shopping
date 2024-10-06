@@ -2,6 +2,7 @@ const dotenv = require('dotenv');
 
 dotenv.config({ path: `${__dirname}/config.env` });
 const DB = require('./config/dbConfig');
+const client = require('./config/redisClient');
 const app = require('./app');
 
 // @desc Uncaught Exceptions: bugs ocure in syncchronous code
@@ -13,6 +14,11 @@ process.on('uncaughtException', (err) => {
 
 // @desc Connect with db
 DB();
+
+// Connect to Redis
+client.connect().then(() => {
+  console.log('Redis client connected');
+});
 
 const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => {
