@@ -14,6 +14,10 @@ const router = express.Router();
 router.use(authController.protect);
 
 router
+  .route('/checkout-session')
+  .get(authController.restrictTo('user'), orderController.checkOutSession);
+
+router
   .route('/')
   .get(orderController.setFilterForLoogedUser, orderController.getOrders)
   .post(

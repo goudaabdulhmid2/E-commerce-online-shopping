@@ -2,12 +2,21 @@ const path = require('path');
 
 const express = require('express');
 const morgen = require('morgan');
+const cors = require('cors');
+const compression = require('compression');
 
 const AppError = require('./utils/AppError');
 const globalErrorHandler = require('./controllers/errorController');
 const mountRoutes = require('./routes');
 
 const app = express();
+
+// Enaple other domains to access API
+app.use(cors());
+app.options('*', cors());
+
+// Compress all response
+app.use(compression());
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgen('dev'));

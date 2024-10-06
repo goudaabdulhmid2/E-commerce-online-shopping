@@ -1,4 +1,5 @@
 const catchAsync = require('express-async-handler');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const handlerFactory = require('./handlerFactory');
 const { getSettings } = require('../utils/settingsCache');
@@ -6,6 +7,8 @@ const AppError = require('../utils/AppError');
 const Order = require('../models/orderModel');
 const Cart = require('../models/cartModel');
 const Product = require('../models/productModel');
+const { strip } = require('colors');
+const client = require('../config/redisClient');
 
 exports.setFilterForLoogedUser = (req, res, next) => {
   if (req.user && req.user.role === 'user') {
@@ -159,6 +162,59 @@ exports.updateOrderToDelivered = catchAsync(async (req, res, next) => {
     status: 'success',
     data: {
       order,
+    },
+  });
+});
+
+// @desc Get checkout session from stripe and send as response
+// @route GET api/v1/orders/checkout-session
+// @access Protected/user
+exports.checkOutSession = catchAsync(async (req, res, next) => {
+  // app settings
+  const settings = await getSettings();
+
+  // Get cart depend on logged-in user
+  const cart = await Cart.findOne({ user: req.user.id });
+
+  if (!cart) {
+    return next(new AppError('Cart not found for this user.', 404));
+  }
+
+  // Get order price depend on cart price
+  const cartPrice = cart.totalPriceAfterDiscount || cart.totalPrice;
+  const taxPrice = settings.taxRate * cartPrice;
+  const shippingPrice = settings.shippingPrice;
+
+  const totalOrderPrice = cartPrice + taxPrice + shippingPrice;
+  const unitAmount = Math.round(totalOrderPrice * 100);
+
+  // Create strio checkout session
+  const session = await stripe.checkout.sessions.create({
+    line_items: [
+      {
+        price_data: {
+          currency: 'egp',
+          unit_amount: unitAmount,
+          product_data: {
+            name: req.user.name,
+          },
+        },
+        quantity: 1,
+      },
+    ],
+    mode: 'payment',
+    success_url: `${req.protocol}://${req.get('host')}/orders`,
+    cancel_url: `${req.protocol}://${req.get('host')}/cart`,
+    customer_email: req.user.email,
+    client_reference_id: cart.id,
+    metadata: req.body.shippingAdress,
+  });
+
+  // send session
+  res.status(200).json({
+    status: 'success',
+    data: {
+      session,
     },
   });
 });
