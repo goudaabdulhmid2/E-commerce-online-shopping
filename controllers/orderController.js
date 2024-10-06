@@ -7,8 +7,6 @@ const AppError = require('../utils/AppError');
 const Order = require('../models/orderModel');
 const Cart = require('../models/cartModel');
 const Product = require('../models/productModel');
-const { strip } = require('colors');
-const client = require('../config/redisClient');
 
 exports.setFilterForLoogedUser = (req, res, next) => {
   if (req.user && req.user.role === 'user') {
@@ -217,4 +215,23 @@ exports.checkOutSession = catchAsync(async (req, res, next) => {
       session,
     },
   });
+});
+
+exports.webhookCheckout = catchAsync(async (req, res, next) => {
+  const sig = req.headers['stripe-signature'];
+
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET,
+    );
+  } catch (err) {
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+  if (event.type === 'checkout.session.completed') {
+    console.log('Create order here ....');
+  }
 });

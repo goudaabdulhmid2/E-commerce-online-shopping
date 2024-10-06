@@ -8,6 +8,7 @@ const compression = require('compression');
 const AppError = require('./utils/AppError');
 const globalErrorHandler = require('./controllers/errorController');
 const mountRoutes = require('./routes');
+const { webhookCheckout } = require('./controllers/orderController');
 
 const app = express();
 
@@ -17,6 +18,13 @@ app.options('*', cors());
 
 // Compress all response
 app.use(compression());
+
+// Checkout webhook
+app.post(
+  '/webhook-checkout',
+  express.raw({ type: 'application/json' }),
+  webhookCheckout,
+);
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgen('dev'));
