@@ -8,6 +8,7 @@ const {
 } = require('../utils/validators/addressValidators');
 
 const router = express.Router();
+
 router.use(authController.protect, authController.restrictTo('user'));
 
 router

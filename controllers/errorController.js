@@ -27,6 +27,11 @@ const handleExpiredError = () => {
   return new AppError(message, 401);
 };
 
+const handleCsrfError = () => {
+  const message = 'Invalid CSRF token';
+  return new AppError(message, 403);
+};
+
 const sendErrorDev = (err, res) =>
   res.status(err.statusCode).json({
     status: err.status,
@@ -61,6 +66,7 @@ module.exports = (err, req, res, next) => {
     if (err.name === 'ValidationError') error = handleValidationErrorDB(error);
     if (err.name === 'JsonWebTokenError') error = handleJwtError();
     if (err.name === 'TokenExpiredError') error = handleExpiredError();
+    if (err.code === 'EBADCSRFTOKEN') error = handleCsrfError();
     sendErrorProd(error, res);
   }
 };

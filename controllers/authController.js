@@ -7,13 +7,14 @@ const User = require('../models/userModel');
 const AppError = require('../utils/AppError');
 const SendEmail = require('../utils/SendEmail');
 const signToken = require('../utils/createToken');
+const { sanitizeUser } = require('../utils/senitizeData');
 
 // @desc  sign a user
 // @route Post /api/v1/auth/signup
 // @access Public
 exports.signup = catchAsync(async (req, res, next) => {
   // Create
-  const user = await User.create({
+  let user = await User.create({
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
@@ -22,6 +23,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   });
 
   const token = signToken(user._id);
+  user = sanitizeUser(user);
 
   res.status(201).json({
     status: 'success',
@@ -38,13 +40,14 @@ exports.signup = catchAsync(async (req, res, next) => {
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email }).select('+password');
+  let user = await User.findOne({ email }).select('+password');
 
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('incorrect email or password.', 401));
   }
 
   const token = signToken(user._id);
+  user = sanitizeUser(user);
 
   res.status(200).json({
     status: 'success',

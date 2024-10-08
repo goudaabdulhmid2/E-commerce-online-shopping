@@ -187,7 +187,7 @@ exports.checkOutSession = catchAsync(async (req, res, next) => {
   const totalOrderPrice = cartPrice + taxPrice + shippingPrice;
   const unitAmount = Math.round(totalOrderPrice * 100);
 
-  // Create strio checkout session
+  // Create stripe checkout session
   const session = await stripe.checkout.sessions.create({
     line_items: [
       {
