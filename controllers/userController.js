@@ -7,7 +7,7 @@ const handlerFactory = require('./handlerFactory');
 const User = require('../models/userModel');
 const { uploadSingleImage } = require('./uploadImageController');
 const AppError = require('../utils/AppError');
-const signToken = require('../utils/createToken');
+const createSendToken = require('../utils/createToken');
 
 // @desc  Upload profile image for user
 exports.uploadProfileImage = uploadSingleImage('profileImage');
@@ -121,15 +121,7 @@ exports.updateMyPassword = catchAsync(async (req, res, next) => {
   // hash will be in pre middleware
   await user.save();
 
-  const token = signToken(user.id);
-
-  res.status(200).json({
-    status: 'success',
-    token,
-    data: {
-      user,
-    },
-  });
+  createSendToken(user, 200, req, res);
 });
 
 // @desc  Updat Me

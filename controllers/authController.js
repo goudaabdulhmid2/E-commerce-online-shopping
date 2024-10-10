@@ -6,8 +6,7 @@ const crypto = require('crypto');
 const User = require('../models/userModel');
 const AppError = require('../utils/AppError');
 const SendEmail = require('../utils/SendEmail');
-const signToken = require('../utils/createToken');
-const { sanitizeUser } = require('../utils/senitizeData');
+const createSendToken = require('../utils/createToken');
 
 // @desc  sign a user
 // @route Post /api/v1/auth/signup
@@ -22,16 +21,9 @@ exports.signup = catchAsync(async (req, res, next) => {
     profileImage: req.body.profileImage,
   });
 
-  const token = signToken(user._id);
-  user = sanitizeUser(user);
-
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: {
-      user,
-    },
-  });
+  const url = `${req.protocol}://${req.get('host')}/me`;
+  await new SendEmail(user, url).sendWelcome();
+  createSendToken(user, 201, req, res);
 });
 
 // @desc  sign in a user
@@ -46,16 +38,7 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('incorrect email or password.', 401));
   }
 
-  const token = signToken(user._id);
-  user = sanitizeUser(user);
-
-  res.status(200).json({
-    status: 'success',
-    token,
-    data: {
-      user,
-    },
-  });
+  createSendToken(user, 200, req, res);
 });
 
 // @desc  protect routes
