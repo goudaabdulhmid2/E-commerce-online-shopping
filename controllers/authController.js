@@ -8,7 +8,7 @@ const AppError = require('../utils/AppError');
 const SendEmail = require('../utils/SendEmail');
 const createSendToken = require('../utils/createToken');
 
-// @desc  sign a user
+// @desc sign a user
 // @route Post /api/v1/auth/signup
 // @access Public
 exports.signup = catchAsync(async (req, res, next) => {
@@ -26,7 +26,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   createSendToken(user, 201, req, res);
 });
 
-// @desc  sign in a user
+// @desc sign in a user
 // @route Post /api/v1/auth/login
 // @access Public
 exports.login = catchAsync(async (req, res, next) => {
@@ -41,7 +41,7 @@ exports.login = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, req, res);
 });
 
-// @desc  protect routes
+// @desc protect routes
 exports.protect = catchAsync(async (req, res, next) => {
   // Get token from header or cookie
   let token;

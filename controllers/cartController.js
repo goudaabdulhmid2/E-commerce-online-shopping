@@ -23,12 +23,12 @@ const calcTotalPrice = (cart) => {
 
 const checkCartExists = async (userId, next) => {
   const cart = await Cart.findOne({ user: userId });
-  if (!cart) throw new AppError('No cart found for this user', 404);
+  if (!cart) return next(new AppError('No cart found for this user', 404));
   return cart;
 };
 
 // @dsec add product to cart
-// @route POST api/v1/car
+// @route POST api/v1/cart
 // @access protected/User
 exports.addProductToCart = catchAsync(async (req, res, next) => {
   const { productId, color } = req.body;
@@ -105,7 +105,7 @@ exports.getUserCart = catchAsync(async (req, res, next) => {
 });
 
 // @dsec delete item
-// @route Delete api/v1/cart/:itemId
+// @route DELETE api/v1/cart/:itemId
 // @access protected/User
 exports.removeItemFromCart = catchAsync(async (req, res, next) => {
   const cart = await checkCartExists(req.user.id, next);
@@ -136,7 +136,7 @@ exports.removeItemFromCart = catchAsync(async (req, res, next) => {
 });
 
 // @dsec clear all item
-// @route Delete api/v1/cart
+// @route DELETE api/v1/cart
 // @access protected/User
 exports.clearCart = catchAsync(async (req, res, next) => {
   const cart = await Cart.findOneAndDelete({ user: req.user.id });
@@ -152,7 +152,7 @@ exports.clearCart = catchAsync(async (req, res, next) => {
 });
 
 // @dsec update quantity
-// @route update api/v1/cart/:itemId
+// @route PATCH api/v1/cart/:itemId
 // @access protected/User
 exports.updateCartItemQuantity = catchAsync(async (req, res, next) => {
   const { quantity } = req.body;

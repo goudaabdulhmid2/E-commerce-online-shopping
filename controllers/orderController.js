@@ -222,6 +222,7 @@ exports.checkOutSession = catchAsync(async (req, res, next) => {
   });
 });
 
+// @desc Create card order
 const createCardOrder = catchAsync(async (session, next) => {
   const cartId = session.client_reference_id;
   const email = session.customer_email;

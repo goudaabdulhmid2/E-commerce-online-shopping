@@ -30,7 +30,6 @@ class ApiFeatures {
   }
 
   limitFields() {
-    // Field limiting 127.0.0.1:8000/api/v1/categorise?fields=name,duration,difficulty,price
     if (this.queryString.fields) {
       const fields = this.queryString.fields.split(',').join(' ');
       this.query = this.query.select(fields);
@@ -41,9 +40,6 @@ class ApiFeatures {
   }
 
   paginate(countDocuments) {
-    // pagination. allowing user to only select a certain page of our results
-    // ?page=2&limit=10  => page=2$limit=10, 1-10 page 1 , 11-20 page 2, 21-30 page 3  => ((page-1)*limit).
-
     const page = this.queryString.page * 1 || 1;
     const limit = this.queryString.limit * 1 || 50;
     const skip = (page - 1) * limit;
@@ -69,7 +65,6 @@ class ApiFeatures {
   }
 
   keyWordsSearch(modelName) {
-    // keyword search 127.0.0.1:8000/api/v1/categorise?keyword=javascript
     if (this.queryString.keyword) {
       const query = {};
       // The $or operator is used to match documents where at least one of the specified conditions is true

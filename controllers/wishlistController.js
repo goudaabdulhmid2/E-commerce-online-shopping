@@ -1,7 +1,6 @@
 const catchAsync = require('express-async-handler');
 
 const User = require('../models/userModel');
-const AppError = require('../utils/AppError');
 
 // @desc  Add product to wishlist
 // @route POST /api/v1/whishlist

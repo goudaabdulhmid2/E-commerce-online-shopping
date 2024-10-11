@@ -3,6 +3,9 @@ const catchAsync = require('express-async-handler');
 const Settings = require('../models/adminSettingsModel');
 const client = require('../config/redisClient');
 
+// @desc  Update tax and shipping price
+// @route PATCH api/v1/admin-settings/updateTaxAndShippingPrice
+// @access Protucted/Admin/Manager
 exports.updateTaxAndShippingPrice = catchAsync(async (req, res, next) => {
   let settings = await Settings.findOne({});
 

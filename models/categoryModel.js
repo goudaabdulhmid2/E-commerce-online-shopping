@@ -17,7 +17,7 @@ const categorySchema = new mongoose.Schema(
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-    timestamps: true, // Create in db updated at and createdat
+    timestamps: true,
   },
 );
 

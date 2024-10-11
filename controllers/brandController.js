@@ -7,10 +7,10 @@ const Brand = require('../models/brandModel');
 const handlerFactory = require('./handlerFactory');
 const { uploadSingleImage } = require('./uploadImageController');
 
-// @desc  Upload brand logo
+// @desc Upload brand logo
 exports.uploadBrandLogo = uploadSingleImage('image');
 
-// @desc  Resize and upload brand logo
+// @desc Resize and upload brand logo
 exports.resizeBrandLogo = catchAsync(async (req, res, next) => {
   if (!req.file) return next();
   req.file.filename = `brand-${uuid.v4()}-${Date.now()}.jpeg`;
@@ -26,27 +26,27 @@ exports.resizeBrandLogo = catchAsync(async (req, res, next) => {
   next();
 });
 
-// @desc  Creat Brand
+// @desc Creat Brand
 // @route POST /api/v1/brands
 // @access Private
 exports.createBrand = handlerFactory.createOne(Brand);
 
-// @desc  Get brands
+// @desc Get brands
 // @route GET /api/v1/brands
 // @access Public
 exports.getAllBrands = handlerFactory.getAll(Brand, 'Brand');
 
-// @desc  Get spcific Brand
+// @desc Get spcific Brand
 // @route GET /api/v1/brands/:id
 // @access Public
 exports.getBrand = handlerFactory.getOne(Brand);
 
-// @desc  Update spcific Brand
+// @desc Update spcific Brand
 // @route PATCH /api/v1/brands/:id
 // @access Privet
 exports.updateBrand = handlerFactory.updateOne(Brand);
 
-// @desc  Delete spcific Brand
+// @desc Delete spcific Brand
 // @route DELETE /api/v1/brands/:id
 // @access Privet
 exports.deleteBrand = handlerFactory.deleteOne(Brand);

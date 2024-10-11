@@ -1,7 +1,6 @@
 const catchAsync = require('express-async-handler');
 
 const User = require('../models/userModel');
-const AppError = require('../utils/AppError');
 
 // @desc  Add address to user adresses
 // @route POST /api/v1/adresses

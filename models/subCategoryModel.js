@@ -33,8 +33,8 @@ subCategorySchema.pre('save', function (next) {
 });
 
 subCategorySchema.virtual('urlImages').get(function () {
-  if (this.images.length === 0) return [];
-  return this.images.map(
+  if (this.images?.length === 0) return [];
+  return this.images?.map(
     (image) => `${process.env.BASE_URL}/subcategories/${image}`,
   );
 });

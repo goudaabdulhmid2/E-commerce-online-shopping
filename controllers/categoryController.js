@@ -1,17 +1,15 @@
-const multer = require('multer');
 const uuid = require('uuid');
 const sharp = require('sharp');
 
 const { uploadSingleImage } = require('./uploadImageController');
 const catchAsync = require('express-async-handler');
-const AppError = require('../utils/AppError');
 const handlerFactory = require('./handlerFactory');
 const Category = require('../models/categoryModel');
 
-// @desc  Upload category image
+// @desc Upload category image
 exports.uploadCategoryImage = uploadSingleImage('image');
 
-// @desc  Resize category image
+// @desc Resize category image
 exports.resizeCategoryImage = catchAsync(async (req, res, next) => {
   if (!req.file) return next();
   req.file.filename = `category-${uuid.v4()}-${Date.now()}.jpeg`;
