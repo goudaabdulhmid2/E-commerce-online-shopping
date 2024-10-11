@@ -78,9 +78,10 @@ EMAIL_HOST=<your-email-host>
 EMAIL_PORT=<your-email-port>
 STRIPE_SECRET_KEY=<your-stripe-secret-key>
 STRIPE_WEBHOOK_SECRET=<your-stripe-webhook-secret>
-CLOUDINARY_CLOUD_NAME=<your-cloudinary-cloud-name>
-CLOUDINARY_API_KEY=<your-cloudinary-api-key>
-CLOUDINARY_API_SECRET=<your-cloudinary-api-secret>
+REDIS_HOST=<HOST>
+REDIS_PORT=<PORT>
+REDIS_PASSWORD=<PASSWORD>
+CACHE_EXPIRATION_TIME=3600
 ```
 
 ## Running the Project
