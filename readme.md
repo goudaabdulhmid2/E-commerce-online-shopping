@@ -40,6 +40,7 @@ This project is a complete **E-commerce platform** developed using **Node.js, Ex
 - **Performance & Optimization**
 
   - Response compression for faster load times.
+  - Enhanced performance using Redis for caching.
 
 ## Installation
 
