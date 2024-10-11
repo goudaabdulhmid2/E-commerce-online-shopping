@@ -8,13 +8,15 @@ const { uploadMultipleImages } = require('./uploadImageController');
 
 // @desc  Upload multiple images for subcategory
 exports.uploadSubCategoryImages = uploadMultipleImages([
-  { name: 'images', maxCount: 5 },
+  {
+    name: 'images',
+    maxCount: 5,
+  },
 ]);
 
 // @desc  Resize images before upload
 exports.resizeImages = catchAsync(async (req, res, next) => {
-  if (!req.files.images) return next();
-
+  if (!req.files) return next();
   req.body.images = [];
   await Promise.all(
     req.files.images.map(async (img, i) => {

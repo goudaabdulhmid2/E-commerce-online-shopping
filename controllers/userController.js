@@ -8,7 +8,7 @@ const User = require('../models/userModel');
 const { uploadSingleImage } = require('./uploadImageController');
 const AppError = require('../utils/AppError');
 const createSendToken = require('../utils/createToken');
-
+const { sanitizeUser } = require('../utils/senitizeData');
 // @desc  Upload profile image for user
 exports.uploadProfileImage = uploadSingleImage('profileImage');
 
@@ -150,7 +150,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     data: {
-      user: updateUser,
+      user: sanitizeUser(updateUser),
     },
   });
 });
@@ -191,6 +191,6 @@ exports.activeMe = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: 'success',
-    data: { user },
+    data: { user: sanitizeUser(user) },
   });
 });

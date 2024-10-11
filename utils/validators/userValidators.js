@@ -24,8 +24,7 @@ exports.updateUserValidator = [
       return true;
     }),
   check('email')
-    .notEmpty()
-    .withMessage('Email is required')
+    .optional()
     .isEmail()
     .withMessage('Please enter a valid email')
     .custom(
@@ -205,8 +204,7 @@ exports.updateMeValidator = [
       return true;
     }),
   check('email')
-    .notEmpty()
-    .withMessage('Email is required')
+    .optional()
     .isEmail()
     .withMessage('Please enter a valid email')
     .custom(

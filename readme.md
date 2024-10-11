@@ -10,16 +10,22 @@ This project is a complete **E-commerce platform** developed using **Node.js, Ex
 
   - JWT-based login, signup, and password reset with email verification.
   - Role-based access control (admin, user).
+  - User address management.
+  - Admin panel for managing users and products
 
 - **Product & Cart Management**
 
   - Admins can add, edit, and remove products.
   - Users can manage their cart, and view product details.
+  - Reviews for products.
 
 - **Cart and Orders**
 
   - Users can add items to their cart, apply discounts, calculate taxes, and complete purchases through Stripe.
   - Card and Cash Orders.
+  - Wishlist functionality.
+  - Shopping cart with coupon application.
+  - Order management (create, read, update, delete).
 
 - **Checkout & Payment**
 
@@ -89,7 +95,7 @@ CLOUDINARY_API_SECRET=<your-cloudinary-api-secret>
 
 ## API Endpoints
 
-- **For a full list of API routes**: [API Documentation](./API_DOCUMENTATION.md).
+- **For a full list of API routes**: [API Documentation](https://documenter.getpostman.com/view/33661317/2sAXxS7qxZ).
 
 ## Security & Middleware
 

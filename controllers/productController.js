@@ -14,7 +14,7 @@ exports.uploadProductImages = uploadMultipleImages([
 ]);
 
 exports.resizeProductImages = catchAsync(async (req, res, next) => {
-  if (req.files.imageCover) {
+  if (req.files?.imageCover) {
     req.files.filename = `product-${uuid.v4()}-${Date.now()}-cover.jpeg`;
 
     await sharp(req.files.imageCover[0].buffer)
@@ -26,7 +26,7 @@ exports.resizeProductImages = catchAsync(async (req, res, next) => {
     req.body.imageCover = req.files.filename;
   }
 
-  if (req.files.images) {
+  if (req.files?.images) {
     req.body.images = [];
     await Promise.all(
       req.files.images.map(async (img, i) => {
